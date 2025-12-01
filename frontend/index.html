@@ -1,24 +1,4 @@
 <!DOCTYPE html>
-<html>
-<head>
-    <title>Medicine Search</title>
-    <link rel="stylesheet" href="/css/styles.css">
-</head>
-<body>
-    <h1>Medicine Search</h1>
-
-    <input id="search-input" placeholder="Search medicines..." />
-    <button id="search-btn">Search</button>
-
-    <h2>Results</h2>
-    <div id="results"></div>
-
-    <h2>Details</h2>
-    <div id="details"></div>
-
-    <script src="/js/medicines_search.js"></script>
-</body>
-</html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -49,13 +29,23 @@
         <section id="search" class="tab-panel active">
             <h2 class="section-title">Search & Filter</h2>
             <p class="section-description">Search for medicines by name, manufacturer, or category.</p>
-            <div id="search-container"></div>
+            
+            <div id="search-container">
+                <input id="search-input" placeholder="Search medicines..." />
+                <button id="search-btn">Search</button>
+                
+                <h3>Results</h3>
+                <div id="results"></div>
+            </div>
         </section>
 
         <section id="details" class="tab-panel">
             <h2 class="section-title">Detailed Information View</h2>
             <p class="section-description">Select a medicine to view its full information.</p>
-            <div id="details-container"></div>
+            
+            <div id="details-container">
+                <div id="details"></div>
+            </div>
         </section>
 
         <section id="insights" class="tab-panel">
@@ -105,7 +95,9 @@
         <p class="team">Rhea Soni • Kavish Shah • Craig Seward • Aryan Shah</p>
     </footer>
 
+    <script src="/js/medicines_search.js"></script>
     <script src="/js/main.js"></script>
     <script src="/js/insights.js"></script>
+    <script src="/js/export.js"></script>
 </body>
 </html>

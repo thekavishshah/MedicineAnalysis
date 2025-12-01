@@ -7,6 +7,8 @@ from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 from fastapi.middleware.cors import CORSMiddleware
+from routers.export import router as export_router
+
 import os
 
 from routers import insights
@@ -33,6 +35,7 @@ app.mount("/js", StaticFiles(directory=os.path.join(frontend_path, "js")), name=
 
 # Routers
 app.include_router(insights.router, prefix="/api/insights", tags=["Insights - Craig"])
+app.include_router(export_router)
 
 
 @app.get("/", response_class=FileResponse)
