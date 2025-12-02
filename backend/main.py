@@ -4,7 +4,7 @@ from fastapi.responses import FileResponse
 from fastapi.middleware.cors import CORSMiddleware
 import os
 
-from routers import insights, medicines
+from routers import insights, medicines, export
 from database import test_connection
 
 app = FastAPI(
@@ -27,6 +27,7 @@ app.mount("/js", StaticFiles(directory=os.path.join(frontend_path, "js")), name=
 
 app.include_router(insights.router, prefix="/api/insights", tags=["Insights - Craig"])
 app.include_router(medicines.router, prefix="/api/medicines", tags=["Medicines - Rhea"])
+app.include_router(export.router, prefix="/api/export", tags=["Export - Kavish"])
 
 @app.get("/", response_class=FileResponse)
 async def serve_index():

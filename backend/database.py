@@ -1,5 +1,6 @@
 import psycopg2
 from psycopg2.extras import RealDictCursor
+from contextlib import contextmanager
 
 DB_CONFIG = {
     "host": "localhost",
@@ -12,29 +13,29 @@ DB_CONFIG = {
 def get_connection():
     return psycopg2.connect(**DB_CONFIG)
 
-class get_cursor:
-    def __enter__(self):
-        self.conn = get_connection()
-        self.cur = self.conn.cursor(cursor_factory=RealDictCursor)
-        return self.cur
-
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        if exc_type is None:
-            self.conn.commit()
-        else:
-            self.conn.rollback()
-        self.cur.close()
-        self.conn.close()
+@contextmanager
+def get_cursor():
+    conn = get_connection()
+    try:
+        cursor = conn.cursor(cursor_factory=RealDictCursor)
+        yield cursor
+        conn.commit()
+    except Exception as e:
+        conn.rollback()
+        raise e
+    finally:
+        cursor.close()
+        conn.close()
 
 def test_connection():
     try:
-        with get_cursor() as cur:
-            cur.execute("SELECT COUNT(*) as count FROM medicine")
-            medicine_count = cur.fetchone()["count"]
-            cur.execute("SELECT COUNT(*) as count FROM manufacturer")
-            manufacturer_count = cur.fetchone()["count"]
-            cur.execute("SELECT COUNT(*) as count FROM category")
-            category_count = cur.fetchone()["count"]
+        with get_cursor() as cursor:
+            cursor.execute("SELECT COUNT(*) as count FROM medicine")
+            medicine_count = cursor.fetchone()["count"]
+            cursor.execute("SELECT COUNT(*) as count FROM manufacturer")
+            manufacturer_count = cursor.fetchone()["count"]
+            cursor.execute("SELECT COUNT(*) as count FROM category")
+            category_count = cursor.fetchone()["count"]
             return {
                 "status": "connected",
                 "medicines": medicine_count,

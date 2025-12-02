@@ -74,6 +74,30 @@ def get_filter_options():
             "classifications": classifications
         }
 
+@router.get("/all")
+def get_all_medicines(limit: int = 1000):
+    """Get all medicines for export functionality."""
+    sql = """
+        SELECT
+            m.medicine_id,
+            m.name,
+            m.indication,
+            m.dosage_form,
+            m.strength,
+            m.classification,
+            ma.name AS manufacturer_name,
+            c.name AS category_name
+        FROM medicine m
+        LEFT JOIN manufacturer ma ON ma.manufacturer_id = m.manufacturer_id
+        LEFT JOIN category c ON c.category_id = m.category_id
+        ORDER BY m.name
+        LIMIT %s;
+    """
+    
+    with get_cursor() as cur:
+        cur.execute(sql, (limit,))
+        return {"results": cur.fetchall()}
+
 @router.get("/{medicine_id}")
 def get_medicine(medicine_id: int):
     sql_main = """

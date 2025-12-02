@@ -150,6 +150,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (typeof initializeSearch === 'function') {
         initializeSearch();
     }
+    
+    if (typeof initExport === 'function') {
+        initExport();
+    }
 });
 
 window.MDVS = { fetchAPI, createTooltip, getChartColor, CHART_COLORS, switchToTab };
