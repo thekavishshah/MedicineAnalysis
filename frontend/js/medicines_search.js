@@ -1,5 +1,10 @@
+let currentMedicineId = null;
+let filterData = null;
+
 function initializeSearch() {
     loadFilterOptions();
+    initializeManageTab();
+    initializeModals();
     
     document.getElementById('search-btn').addEventListener('click', searchMedicines);
     document.getElementById('search-input').addEventListener('keypress', (e) => {
@@ -13,26 +18,71 @@ function initializeSearch() {
 async function loadFilterOptions() {
     try {
         const response = await fetch('/api/medicines/filters');
-        const data = await response.json();
+        filterData = await response.json();
         
         const mfrSelect = document.getElementById('filter-manufacturer');
-        data.manufacturers.forEach(mfr => {
+        filterData.manufacturers.forEach(mfr => {
             const option = document.createElement('option');
-            option.value = mfr;
-            option.textContent = mfr;
+            option.value = mfr.name;
+            option.textContent = mfr.name;
             mfrSelect.appendChild(option);
         });
         
         const catSelect = document.getElementById('filter-category');
-        data.categories.forEach(cat => {
+        filterData.categories.forEach(cat => {
             const option = document.createElement('option');
-            option.value = cat;
-            option.textContent = cat;
+            option.value = cat.name;
+            option.textContent = cat.name;
             catSelect.appendChild(option);
         });
+        
+        populateManageDropdowns();
+        populateEditDropdowns();
     } catch (error) {
         console.error('Failed to load filter options:', error);
     }
+}
+
+function populateManageDropdowns() {
+    if (!filterData) return;
+    
+    const newCatSelect = document.getElementById('new-category');
+    filterData.categories.forEach(cat => {
+        const option = document.createElement('option');
+        option.value = cat.category_id;
+        option.textContent = cat.name;
+        newCatSelect.appendChild(option);
+    });
+    
+    const newMfrSelect = document.getElementById('new-manufacturer');
+    filterData.manufacturers.forEach(mfr => {
+        const option = document.createElement('option');
+        option.value = mfr.manufacturer_id;
+        option.textContent = mfr.name;
+        newMfrSelect.appendChild(option);
+    });
+}
+
+function populateEditDropdowns() {
+    if (!filterData) return;
+    
+    const editCatSelect = document.getElementById('edit-category');
+    editCatSelect.innerHTML = '<option value="">Select Category</option>';
+    filterData.categories.forEach(cat => {
+        const option = document.createElement('option');
+        option.value = cat.category_id;
+        option.textContent = cat.name;
+        editCatSelect.appendChild(option);
+    });
+    
+    const editMfrSelect = document.getElementById('edit-manufacturer');
+    editMfrSelect.innerHTML = '<option value="">Select Manufacturer</option>';
+    filterData.manufacturers.forEach(mfr => {
+        const option = document.createElement('option');
+        option.value = mfr.manufacturer_id;
+        option.textContent = mfr.name;
+        editMfrSelect.appendChild(option);
+    });
 }
 
 async function searchMedicines() {
@@ -91,6 +141,7 @@ async function searchMedicines() {
 
 async function loadDetails(medicineId) {
     const detailsContainer = document.getElementById('details-container');
+    currentMedicineId = medicineId;
     
     MDVS.switchToTab('details');
     
@@ -159,9 +210,17 @@ async function loadDetails(medicineId) {
                     </div>
                 </div>
                 
-                <button onclick="MDVS.switchToTab('search')" class="btn btn-secondary" style="margin-top:1.5rem;">
-                    ← Back to Search
-                </button>
+                <div class="detail-actions">
+                    <button onclick="MDVS.switchToTab('search')" class="btn btn-secondary">
+                        ← Back to Search
+                    </button>
+                    <button onclick="openEditModal(${med.medicine_id})" class="btn btn-primary">
+                        ✏️ Edit
+                    </button>
+                    <button onclick="openDeleteModal(${med.medicine_id})" class="btn btn-danger">
+                        🗑️ Delete
+                    </button>
+                </div>
             </div>
         `;
         
@@ -185,4 +244,195 @@ function clearFilters() {
     document.getElementById('filter-category').value = '';
     document.getElementById('results-list').innerHTML = '';
     document.getElementById('results-count').textContent = '';
+}
+
+function initializeManageTab() {
+    document.getElementById('add-medicine-btn').addEventListener('click', addMedicine);
+    document.getElementById('clear-form-btn').addEventListener('click', clearAddForm);
+}
+
+async function addMedicine() {
+    const name = document.getElementById('new-name').value.trim();
+    const strength = document.getElementById('new-strength').value.trim();
+    const categoryId = document.getElementById('new-category').value;
+    const manufacturerId = document.getElementById('new-manufacturer').value;
+    const dosageForm = document.getElementById('new-dosage-form').value.trim();
+    const classification = document.getElementById('new-classification').value;
+    const indication = document.getElementById('new-indication').value.trim();
+    
+    const statusDiv = document.getElementById('add-status');
+    
+    if (!name || !strength) {
+        statusDiv.style.display = 'block';
+        statusDiv.className = 'form-status error';
+        statusDiv.innerHTML = '❌ Please fill in required fields (Name and Strength)';
+        return;
+    }
+    
+    statusDiv.style.display = 'block';
+    statusDiv.className = 'form-status loading';
+    statusDiv.innerHTML = '⏳ Adding medicine...';
+    
+    try {
+        const response = await fetch('/api/medicines/', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                name: name,
+                strength: strength,
+                category_id: categoryId ? parseInt(categoryId) : null,
+                manufacturer_id: manufacturerId ? parseInt(manufacturerId) : null,
+                dosage_form: dosageForm || null,
+                classification: classification,
+                indication: indication || null
+            })
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok) {
+            statusDiv.className = 'form-status success';
+            statusDiv.innerHTML = `✅ Medicine "${name}" added successfully!`;
+            clearAddForm();
+            
+            setTimeout(() => {
+                statusDiv.style.display = 'none';
+            }, 3000);
+        } else {
+            throw new Error(data.detail || 'Failed to add medicine');
+        }
+    } catch (error) {
+        statusDiv.className = 'form-status error';
+        statusDiv.innerHTML = `❌ Error: ${error.message}`;
+    }
+}
+
+function clearAddForm() {
+    document.getElementById('new-name').value = '';
+    document.getElementById('new-strength').value = '';
+    document.getElementById('new-category').value = '';
+    document.getElementById('new-manufacturer').value = '';
+    document.getElementById('new-dosage-form').value = '';
+    document.getElementById('new-classification').value = 'Prescription';
+    document.getElementById('new-indication').value = '';
+}
+
+function initializeModals() {
+    document.getElementById('cancel-delete-btn').addEventListener('click', closeDeleteModal);
+    document.getElementById('confirm-delete-btn').addEventListener('click', confirmDelete);
+    document.getElementById('cancel-edit-btn').addEventListener('click', closeEditModal);
+    document.getElementById('save-edit-btn').addEventListener('click', saveEdit);
+    
+    document.getElementById('confirm-modal').addEventListener('click', (e) => {
+        if (e.target.id === 'confirm-modal') closeDeleteModal();
+    });
+    document.getElementById('edit-modal').addEventListener('click', (e) => {
+        if (e.target.id === 'edit-modal') closeEditModal();
+    });
+}
+
+function openDeleteModal(medicineId) {
+    currentMedicineId = medicineId;
+    document.getElementById('confirm-modal').style.display = 'flex';
+}
+
+function closeDeleteModal() {
+    document.getElementById('confirm-modal').style.display = 'none';
+}
+
+async function confirmDelete() {
+    if (!currentMedicineId) return;
+    
+    try {
+        const response = await fetch(`/api/medicines/${currentMedicineId}`, {
+            method: 'DELETE'
+        });
+        
+        if (response.ok) {
+            closeDeleteModal();
+            MDVS.switchToTab('search');
+            searchMedicines();
+            alert('Medicine deleted successfully!');
+        } else {
+            const data = await response.json();
+            throw new Error(data.detail || 'Failed to delete');
+        }
+    } catch (error) {
+        alert(`Error: ${error.message}`);
+    }
+}
+
+async function openEditModal(medicineId) {
+    currentMedicineId = medicineId;
+    
+    try {
+        const response = await fetch(`/api/medicines/${medicineId}`);
+        const med = await response.json();
+        
+        document.getElementById('edit-name').value = med.name || '';
+        document.getElementById('edit-strength').value = med.strength || '';
+        document.getElementById('edit-dosage-form').value = med.dosage_form || '';
+        document.getElementById('edit-indication').value = med.indication || '';
+        document.getElementById('edit-classification').value = med.classification || 'Prescription';
+        
+        if (med.category_id) {
+            document.getElementById('edit-category').value = med.category_id;
+        }
+        if (med.manufacturer_id) {
+            document.getElementById('edit-manufacturer').value = med.manufacturer_id;
+        }
+        
+        document.getElementById('edit-modal').style.display = 'flex';
+    } catch (error) {
+        alert('Failed to load medicine details for editing');
+    }
+}
+
+function closeEditModal() {
+    document.getElementById('edit-modal').style.display = 'none';
+}
+
+async function saveEdit() {
+    if (!currentMedicineId) return;
+    
+    const name = document.getElementById('edit-name').value.trim();
+    const strength = document.getElementById('edit-strength').value.trim();
+    
+    if (!name || !strength) {
+        alert('Name and Strength are required');
+        return;
+    }
+    
+    const updateData = {
+        name: name,
+        strength: strength,
+        dosage_form: document.getElementById('edit-dosage-form').value.trim() || null,
+        indication: document.getElementById('edit-indication').value.trim() || null,
+        classification: document.getElementById('edit-classification').value
+    };
+    
+    const categoryId = document.getElementById('edit-category').value;
+    const manufacturerId = document.getElementById('edit-manufacturer').value;
+    
+    if (categoryId) updateData.category_id = parseInt(categoryId);
+    if (manufacturerId) updateData.manufacturer_id = parseInt(manufacturerId);
+    
+    try {
+        const response = await fetch(`/api/medicines/${currentMedicineId}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(updateData)
+        });
+        
+        if (response.ok) {
+            closeEditModal();
+            loadDetails(currentMedicineId);
+            alert('Medicine updated successfully!');
+        } else {
+            const data = await response.json();
+            throw new Error(data.detail || 'Failed to update');
+        }
+    } catch (error) {
+        alert(`Error: ${error.message}`);
+    }
 }
