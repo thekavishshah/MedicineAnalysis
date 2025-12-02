@@ -16,6 +16,7 @@
         <nav class="main-nav">
             <a href="#" class="nav-link active" data-tab="search">Search & Filter</a>
             <a href="#" class="nav-link" data-tab="details">Detailed View</a>
+            <a href="#" class="nav-link" data-tab="manage">Manage Medicines</a>
             <a href="#" class="nav-link" data-tab="insights">Category & Manufacturer Insights</a>
             <a href="#" class="nav-link" data-tab="export">Data Export</a>
         </nav>
@@ -61,6 +62,68 @@
             </div>
         </section>
 
+        <section id="manage" class="tab-panel">
+            <h2 class="section-title">Manage Medicines</h2>
+            <p class="section-description">Add new medicines to the database.</p>
+            
+            <div class="manage-container">
+                <div class="add-medicine-form">
+                    <h3 class="form-title">➕ Add New Medicine</h3>
+                    
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="new-name">Medicine Name *</label>
+                            <input type="text" id="new-name" class="form-input" placeholder="Enter medicine name" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="new-strength">Strength *</label>
+                            <input type="text" id="new-strength" class="form-input" placeholder="e.g., 500mg, 10ml">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="new-category">Category</label>
+                            <select id="new-category" class="form-select">
+                                <option value="">Select Category</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="new-manufacturer">Manufacturer</label>
+                            <select id="new-manufacturer" class="form-select">
+                                <option value="">Select Manufacturer</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="new-dosage-form">Dosage Form</label>
+                            <input type="text" id="new-dosage-form" class="form-input" placeholder="e.g., Tablet, Capsule, Syrup">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="new-classification">Classification</label>
+                            <select id="new-classification" class="form-select">
+                                <option value="Prescription">Prescription</option>
+                                <option value="Over-the-Counter">Over-the-Counter</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group full-width">
+                            <label for="new-indication">Indication</label>
+                            <textarea id="new-indication" class="form-textarea" placeholder="What is this medicine used for?"></textarea>
+                        </div>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button id="add-medicine-btn" class="btn btn-primary">➕ Add Medicine</button>
+                        <button id="clear-form-btn" class="btn btn-secondary">Clear Form</button>
+                    </div>
+                    
+                    <div id="add-status" class="form-status" style="display: none;"></div>
+                </div>
+            </div>
+        </section>
+
         <section id="insights" class="tab-panel">
             <h2 class="section-title">Category & Manufacturer Insights</h2>
             <p class="section-description">Analytics showing category distribution and manufacturer rankings.</p>
@@ -102,6 +165,70 @@
         </section>
 
     </main>
+
+    <div id="confirm-modal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <h3 class="modal-title">Confirm Delete</h3>
+            <p class="modal-message">Are you sure you want to delete this medicine? This action cannot be undone.</p>
+            <div class="modal-actions">
+                <button id="confirm-delete-btn" class="btn btn-danger">Yes, Delete</button>
+                <button id="cancel-delete-btn" class="btn btn-secondary">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="edit-modal" class="modal" style="display: none;">
+        <div class="modal-content modal-large">
+            <h3 class="modal-title">Edit Medicine</h3>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="edit-name">Medicine Name *</label>
+                    <input type="text" id="edit-name" class="form-input">
+                </div>
+                
+                <div class="form-group">
+                    <label for="edit-strength">Strength *</label>
+                    <input type="text" id="edit-strength" class="form-input">
+                </div>
+                
+                <div class="form-group">
+                    <label for="edit-category">Category</label>
+                    <select id="edit-category" class="form-select">
+                        <option value="">Select Category</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="edit-manufacturer">Manufacturer</label>
+                    <select id="edit-manufacturer" class="form-select">
+                        <option value="">Select Manufacturer</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="edit-dosage-form">Dosage Form</label>
+                    <input type="text" id="edit-dosage-form" class="form-input">
+                </div>
+                
+                <div class="form-group">
+                    <label for="edit-classification">Classification</label>
+                    <select id="edit-classification" class="form-select">
+                        <option value="Prescription">Prescription</option>
+                        <option value="Over-the-Counter">Over-the-Counter</option>
+                    </select>
+                </div>
+                
+                <div class="form-group full-width">
+                    <label for="edit-indication">Indication</label>
+                    <textarea id="edit-indication" class="form-textarea"></textarea>
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button id="save-edit-btn" class="btn btn-primary">Save Changes</button>
+                <button id="cancel-edit-btn" class="btn btn-secondary">Cancel</button>
+            </div>
+        </div>
+    </div>
 
     <footer class="main-footer">
         <p>MDVS - CSE 412 Database Management | Group 43</p>
