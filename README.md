@@ -2,26 +2,21 @@
 
 A full-stack web application for exploring and analyzing medicine data with interactive visualizations and multi-format export capabilities.
 
-![Python](https://img.shields.io/badge/Python-3.8+-3776AB?style=flat&logo=python&logoColor=white)
-![FastAPI](https://img.shields.io/badge/FastAPI-0.104+-009688?style=flat&logo=fastapi&logoColor=white)
-![PostgreSQL](https://img.shields.io/badge/PostgreSQL-13+-336791?style=flat&logo=postgresql&logoColor=white)
-![JavaScript](https://img.shields.io/badge/JavaScript-ES6+-F7DF1E?style=flat&logo=javascript&logoColor=black)
-
 ---
 
 ## Features
 
 ### Search & Filter
-Real-time medicine search with advanced filtering by category, manufacturer, and price range.
+Real time medicine search with advanced filtering by category, manufacturer, and price range.
 
 ### Interactive Visualizations
-D3.js-powered charts showing category distributions, manufacturer rankings, and statistical insights.
+D3.js powered charts showing category distributions, manufacturer rankings, and statistical insights.
 
 ### Detailed Medicine Information
 Complete medicine profiles including dosage, uses, side effects, ingredients, and manufacturer details.
 
 ### Multi-Format Export
-Export data in **CSV**, **JSON**, **Excel**, and **PDF** formats with customizable options for details, statistics, and chart visualizations.
+Export data in **PDF** format with customizable options for details, statistics, and chart visualizations.
 
 ---
 
